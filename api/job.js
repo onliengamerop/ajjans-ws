@@ -4,7 +4,8 @@ export default function handler(req, res) {
     res.setHeader("Access-Control-Allow-Origin", "*");
 
     if (req.method === "POST") {
-        const { jobId, brainrot, mps } = req.body;
+        const { jobId, brainrot, mps, rarity, mutation } = req.body;
+
         if (jobId && brainrot && mps) {
             // Remove ALL previous entries with same jobId
             for (let i = servers.length - 1; i >= 0; i--) {
@@ -12,11 +13,21 @@ export default function handler(req, res) {
                     servers.splice(i, 1);
                 }
             }
-            // Add fresh entry at top
-            servers.unshift({ jobId, brainrot, mps, timestamp: Date.now() });
+
+            // Add fresh entry at top (now includes rarity + mutation)
+            servers.unshift({
+                jobId,
+                brainrot,
+                mps,
+                rarity: rarity || "Unknown",      // fallback if missing
+                mutation: mutation || "None",     // fallback if missing
+                timestamp: Date.now()
+            });
+
             // Keep only last 100 logs
             if (servers.length > 100) servers.pop();
         }
+
         return res.status(200).json({ ok: true });
     }
 
@@ -24,6 +35,10 @@ export default function handler(req, res) {
         const now = Date.now();
         // 30 seconds expiry
         const fresh = servers.filter(s => now - s.timestamp < 30 * 1000);
+
+        // Optionally clean up old entries from memory (good practice)
+        // servers = servers.filter(s => now - s.timestamp < 300 * 1000); // keep 5 min in memory
+
         return res.status(200).json(fresh);
     }
 
