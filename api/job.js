@@ -4,7 +4,7 @@ export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, rarity, mutation } = req.body;
+    const { jobId, brainrot, mps, rarity, mutation, players } = req.body;
 
     if (jobId && brainrot && mps) {
       // Remove ALL previous entries with same jobId
@@ -21,6 +21,7 @@ export default function handler(req, res) {
         mps,
         rarity: rarity || "Unknown",
         mutation: mutation || "Normal",
+        players: players || 0,
         timestamp: Date.now(),
       });
 
