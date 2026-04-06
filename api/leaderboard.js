@@ -17,10 +17,8 @@ export default function handler(req, res) {
     }
 
     leaderboard[username].steals += 1;
-    // Keep highest mps recorded
-    if ((mps || 0) > leaderboard[username].mps) {
-      leaderboard[username].mps = mps;
-    }
+    // Always overwrite MPS with the latest steal's value
+    leaderboard[username].mps = mps || 0;
     leaderboard[username].lastSteal = { name, rarity, mutation, traits, generation };
     leaderboard[username].lastUpdated = Date.now();
 
