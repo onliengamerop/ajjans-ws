@@ -7,6 +7,7 @@ export default function handler(req, res) {
         const { jobId, brainrot, mps, rarity, mutation } = req.body;
 
         if (jobId && brainrot && mps) {
+
             // Remove ALL previous entries with same jobId
             for (let i = servers.length - 1; i >= 0; i--) {
                 if (servers[i].jobId === jobId) {
@@ -14,13 +15,13 @@ export default function handler(req, res) {
                 }
             }
 
-            // Add fresh entry at top (now includes rarity + mutation)
+            // Add fresh entry at top
             servers.unshift({
                 jobId,
                 brainrot,
                 mps,
-                rarity: rarity || "Unknown",      // fallback if missing
-                mutation: mutation || "None",     // fallback if missing
+                rarity: rarity || "Unknown",
+                mutation: mutation || "None",
                 timestamp: Date.now()
             });
 
@@ -33,8 +34,15 @@ export default function handler(req, res) {
 
     if (req.method === "GET") {
         const now = Date.now();
+
         // 30 seconds expiry
         const fresh = servers.filter(s => now - s.timestamp < 30 * 1000);
+
+        return res.status(200).json(fresh);
+    }
+
+    res.status(405).json({ error: "Method not allowed" });
+}        const fresh = servers.filter(s => now - s.timestamp < 30 * 1000);
 
         // Optionally clean up old entries from memory (good practice)
         // servers = servers.filter(s => now - s.timestamp < 300 * 1000); // keep 5 min in memory
