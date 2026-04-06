@@ -1,5 +1,5 @@
 // /api/leaderboard.js
-const leaderboard = {}; // In-memory (use KV/DB for persistence)
+const leaderboard = {};
 
 export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,7 +17,10 @@ export default function handler(req, res) {
     }
 
     leaderboard[username].steals += 1;
-    leaderboard[username].mps = mps || leaderboard[username].mps;
+    // Keep highest mps recorded
+    if ((mps || 0) > leaderboard[username].mps) {
+      leaderboard[username].mps = mps;
+    }
     leaderboard[username].lastSteal = { name, rarity, mutation, traits, generation };
     leaderboard[username].lastUpdated = Date.now();
 
@@ -25,7 +28,7 @@ export default function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    const sorted = Object.values(leaderboard).sort((a, b) => b.mps - a.mps);
+    const sorted = Object.values(leaderboard).sort((a, b) => b.steals - a.steals);
     return res.status(200).json(sorted);
   }
 
