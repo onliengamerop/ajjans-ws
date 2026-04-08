@@ -1,4 +1,4 @@
-const servers = [];
+export servers = [];
 
 export default function handler(req, res) {
 res.setHeader("Access-Control-Allow-Origin", "*");
@@ -36,7 +36,7 @@ return res.status(200).json({ ok: true });
 if (req.method === "GET") {
 const now = Date.now();
 
-// 30 seconds expiry  
+// 30secondss expiry  
 const fresh = servers.filter((s) => now - s.timestamp < 30 * 1000);  
 
 return res.status(200).json(fresh);
