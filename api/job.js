@@ -4,7 +4,7 @@ export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, rarity, mutation, players, image } = req.body;
+    const { jobId, brainrot, mps, rarity, mutation, players, imageUrl } = req.body;
 
     if (jobId && brainrot && mps) {
       for (let i = servers.length - 1; i >= 0; i--) {
@@ -20,7 +20,7 @@ export default function handler(req, res) {
         rarity: rarity || "Unknown",
         mutation: mutation || "Normal",
         players: players || 0,
-        image: image || null, // 🔥 ADDED
+        imageUrl: imageUrl || null, // 🔥 ADDED
         timestamp: Date.now(),
       });
 
