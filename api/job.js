@@ -1,4 +1,6 @@
-export let servers = [];
+// WARNING: This array will still reset randomly when Vercel spins down or scales.
+// For a production app, replace this array with a Redis database (e.g., Upstash).
+let servers = []; 
 
 export default function handler(req, res) {
   // CORS Headers
@@ -11,45 +13,48 @@ export default function handler(req, res) {
     return res.status(200).end();
   }
 
+  const now = Date.now();
+  const EXPIRY_MS = 20000; // 20 seconds
+
   if (req.method === "POST") {
     const { jobId, brainrot, mps, rarity, trait, mutation, players } = req.body;
 
     if (jobId && brainrot) {
-      // Remove entry if it is the same pet in the same server
-      for (let i = servers.length - 1; i >= 0; i--) {
-        if (servers[i].jobId === jobId && servers[i].brainrot === brainrot) {
-          servers.splice(i, 1);
-        }
-      }
+      // Remove the exact same pet in the same server if it already exists
+      servers = servers.filter(
+        (server) => !(server.jobId === jobId && server.brainrot === brainrot)
+      );
 
       // Add fresh entry
       servers.unshift({
         jobId,
         brainrot,                 
         mps: mps || "N/A",        
-        rarity: rarity || "Unknown",
         trait: trait || "N/A",
+        rarity: rarity || "Unknown",
         mutation: mutation || "Normal",
         players: players || 0,
-        timestamp: Date.now(),
+        timestamp: now,
       });
 
-      // Keep only last 100 logs
-      if (servers.length > 100) servers.pop();
+      // Proactively clear out any logs older than 20 seconds during POST to keep array light
+      servers = servers.filter((server) => now - server.timestamp < EXPIRY_MS);
+
+      // Keep max 100 logs safety net
+      if (servers.length > 100) {
+        servers = servers.slice(0, 100);
+      }
     }
 
     return res.status(200).json({ ok: true });
   }
 
   if (req.method === "GET") {
-    const now = Date.now();
-    
-    // Filter: Remove logs older than 20 seconds (20,000 milliseconds)
-    servers = servers.filter((server) => now - server.timestamp < 20000);
+    // Filter out servers that are older than 20 seconds
+    servers = servers.filter((server) => now - server.timestamp < EXPIRY_MS);
 
     return res.status(200).json(servers);
   }
 
-  // Fallback for unsupported methods
   return res.status(405).json({ error: "Method not allowed" });
 }
