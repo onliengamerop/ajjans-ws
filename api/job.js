@@ -16,19 +16,20 @@ export default function handler(req, res) {
   const EXPIRY_MS = 30000; // 30 seconds
 
   if (req.method === "POST") {
-    // FIXED: Now actually extracting rarity, trait, and mutation from the payload
-    const { jobId, brainrot, mps, players, rarity, trait, mutation } = req.body;
+    // FIXED: Extracting capital Rarity, Trait, and Mutation. 
+    // Left lowercase fallbacks just in case older scanner versions ping it.
+    const { jobId, brainrot, mps, players, Rarity, rarity, Trait, trait, Mutation, mutation } = req.body;
 
     if (jobId && brainrot) {
-      // Add fresh entry with ALL data
+      // Add fresh entry using the Exact Casing your frontend expects
       servers.unshift({
         jobId,
         brainrot,                 
         mps: mps || "N/A",        
         players: players || 0,
-        rarity: rarity || "Unknown",
-        trait: trait || "N/A",
-        mutation: mutation || "Normal",
+        Rarity: Rarity || rarity || "Unknown",
+        Trait: Trait || trait || "N/A",
+        Mutation: Mutation || mutation || "Normal",
         timestamp: now,
       });
 
