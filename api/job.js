@@ -1,4 +1,3 @@
-// Note: This array resets when Vercel goes to sleep.
 export let servers = [];
 
 export default function handler(req, res) {
@@ -16,8 +15,7 @@ export default function handler(req, res) {
     const { jobId, brainrot, mps, rarity, trait, mutation, players } = req.body;
 
     if (jobId && brainrot) {
-      // FIX: Only remove the entry if it's the EXACT SAME PET in the SAME server.
-      // This stops it from deleting other pets found in the same server.
+      // Remove entry if it is the same pet in the same server
       for (let i = servers.length - 1; i >= 0; i--) {
         if (servers[i].jobId === jobId && servers[i].brainrot === brainrot) {
           servers.splice(i, 1);
@@ -29,8 +27,8 @@ export default function handler(req, res) {
         jobId,
         brainrot,                 
         mps: mps || "N/A",        
-        trait: trait || "N/A",
         rarity: rarity || "Unknown",
+        trait: trait || "N/A",
         mutation: mutation || "Normal",
         players: players || 0,
         timestamp: Date.now(),
@@ -46,8 +44,8 @@ export default function handler(req, res) {
   if (req.method === "GET") {
     const now = Date.now();
     
-    // Filter out servers that are older than 10 minutes (600,000 milliseconds)
-    servers = servers.filter((server) => now - server.timestamp < 600000);
+    // Filter: Remove logs older than 20 seconds (20,000 milliseconds)
+    servers = servers.filter((server) => now - server.timestamp < 20000);
 
     return res.status(200).json(servers);
   }
