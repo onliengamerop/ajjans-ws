@@ -16,19 +16,19 @@ export default function handler(req, res) {
   const EXPIRY_MS = 30000; // 30 seconds
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, rarity, players } = req.body;
+    // FIXED: Now actually extracting rarity, trait, and mutation from the payload
+    const { jobId, brainrot, mps, players, rarity, trait, mutation } = req.body;
 
     if (jobId && brainrot) {
-      // DEDUPLICATION FILTER REMOVED.
-      // This will now accept and log every single ping, creating duplicates.
-
-      // Add fresh entry
+      // Add fresh entry with ALL data
       servers.unshift({
         jobId,
         brainrot,                 
-        mps: mps || "N/A",  
-        rarity: rarity || "Unknown",      
+        mps: mps || "N/A",        
         players: players || 0,
+        rarity: rarity || "Unknown",
+        trait: trait || "N/A",
+        mutation: mutation || "Normal",
         timestamp: now,
       });
 
