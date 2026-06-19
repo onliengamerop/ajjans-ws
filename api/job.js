@@ -1,12 +1,21 @@
 export let servers = [];
 
 export default function handler(req, res) {
+  // CORS Headers
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, rarity, mutation, players } = req.body;
+    // Added 'trait' to match the Lua script payload
+    const { jobId, brainrot, mps, rarity, trait, mutation, players } = req.body;
 
-    if (jobId && brainrot && mps) {
+    if (jobId && brainrot) {
       // Remove ALL previous entries with same jobId
       for (let i = servers.length - 1; i >= 0; i--) {
         if (servers[i].jobId === jobId) {
@@ -17,8 +26,9 @@ export default function handler(req, res) {
       // Add fresh entry
       servers.unshift({
         jobId,
-        brainrot,
-        mps,
+        brainrot,                 // Contains the Pet Name
+        mps: mps || "N/A",        // Contains the Pet Price
+        trait: trait || "N/A",
         rarity: rarity || "Unknown",
         mutation: mutation || "Normal",
         players: players || 0,
@@ -34,12 +44,14 @@ export default function handler(req, res) {
 
   if (req.method === "GET") {
     const now = Date.now();
+    
+    // Filter out servers that are older than 10 minutes (600,000 milliseconds)
+    // Adjust the 600000 number if you want them to stay on the list longer or shorter
+    servers = servers.filter((server) => now - server.timestamp < 600000);
 
-    // 30 seconds expiry
-    const fresh = servers.filter((s) => now - s.timestamp < 30 * 1000);
-
-    return res.status(200).json(fresh);
+    return res.status(200).json(servers);
   }
 
-  res.status(405).json({ error: "Method not allowed" });
+  // Fallback for unsupported methods
+  return res.status(405).json({ error: "Method not allowed" });
 }
