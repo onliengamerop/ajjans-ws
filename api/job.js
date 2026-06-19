@@ -14,10 +14,10 @@ export default function handler(req, res) {
   }
 
   const now = Date.now();
-  const EXPIRY_MS = 20000; // 20 seconds
+  const EXPIRY_MS = 30000; // Updated: 30 seconds
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, rarity, trait, mutation, players } = req.body;
+    const { jobId, brainrot, mps, players } = req.body; // Removed trait, rarity, mutation
 
     if (jobId && brainrot) {
       // Remove the exact same pet in the same server if it already exists
@@ -30,14 +30,11 @@ export default function handler(req, res) {
         jobId,
         brainrot,                 
         mps: mps || "N/A",        
-        trait: trait || "N/A",
-        rarity: rarity || "Unknown",
-        mutation: mutation || "Normal",
         players: players || 0,
         timestamp: now,
       });
 
-      // Proactively clear out any logs older than 20 seconds during POST to keep array light
+      // Proactively clear out any logs older than 30 seconds
       servers = servers.filter((server) => now - server.timestamp < EXPIRY_MS);
 
       // Keep max 100 logs safety net
@@ -50,7 +47,7 @@ export default function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    // Filter out servers that are older than 20 seconds
+    // Filter out servers that are older than 30 seconds
     servers = servers.filter((server) => now - server.timestamp < EXPIRY_MS);
 
     return res.status(200).json(servers);
