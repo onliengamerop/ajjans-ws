@@ -1,5 +1,4 @@
 // WARNING: This array will still reset randomly when Vercel spins down or scales.
-// For a production app, replace this array with a Redis database (e.g., Upstash).
 let servers = []; 
 
 export default function handler(req, res) {
@@ -14,16 +13,14 @@ export default function handler(req, res) {
   }
 
   const now = Date.now();
-  const EXPIRY_MS = 30000; // Updated: 30 seconds
+  const EXPIRY_MS = 30000; // 30 seconds
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, players } = req.body; // Removed trait, rarity, mutation
+    const { jobId, brainrot, mps, players } = req.body;
 
     if (jobId && brainrot) {
-      // Remove the exact same pet in the same server if it already exists
-      servers = servers.filter(
-        (server) => !(server.jobId === jobId && server.brainrot === brainrot)
-      );
+      // DEDUPLICATION FILTER REMOVED.
+      // This will now accept and log every single ping, creating duplicates.
 
       // Add fresh entry
       servers.unshift({
