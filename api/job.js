@@ -17,7 +17,7 @@ export default function handler(req, res) {
   const EXPIRY_MS = 20000; // 20 seconds
 
   if (req.method === "POST") {
-    const { jobId, brainrot, mps, trait, players } = req.body;
+    const { jobId, brainrot, mps, rarity, trait, mutation, players } = req.body;
 
     if (jobId && brainrot) {
       // Remove the exact same pet in the same server if it already exists
@@ -31,6 +31,8 @@ export default function handler(req, res) {
         brainrot,                 
         mps: mps || "N/A",        
         trait: trait || "N/A",
+        rarity: rarity || "Unknown",
+        mutation: mutation || "Normal",
         players: players || 0,
         timestamp: now,
       });
