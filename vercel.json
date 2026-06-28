@@ -4,6 +4,10 @@
         {
             "src": "/job",
             "dest": "/api/job.js"
+        },
+        {
+            "src": "/gag2data",
+            "dest": "/api/gag2data.js"
         }
     ]
 }
