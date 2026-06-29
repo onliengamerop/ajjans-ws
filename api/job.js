@@ -49,6 +49,10 @@ export default function handler(req, res) {
     // Filter out servers that are older than 30 seconds
     servers = servers.filter((server) => now - server.timestamp < EXPIRY_MS);
 
+    // FIX: Add Cache-Control to prevent GET requests from burning your limit
+    // Caches at the edge for 2 seconds, allows stale delivery for 5 seconds while re-fetching in the background
+    res.setHeader("Cache-Control", "s-maxage=2, stale-while-revalidate=5");
+
     return res.status(200).json(servers);
   }
 
